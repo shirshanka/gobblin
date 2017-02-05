@@ -69,7 +69,8 @@ dependencies {
   testCompile externalDependency.mockito
   testCompile externalDependency.powermock
 
-  compile files('./src/main/resources/helix-core-0.6.6-SNAPSHOT.jar')
+  //compile files('./src/main/resources/helix-core-0.6.6-SNAPSHOT.jar')
+  compile externalDependency.helix
 }
 
 task testJar(type: Jar, dependsOn: testClasses) {

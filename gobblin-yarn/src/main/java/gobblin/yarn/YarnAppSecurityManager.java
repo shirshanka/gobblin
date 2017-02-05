@@ -264,9 +264,11 @@ public class YarnAppSecurityManager extends AbstractIdleService {
     criteria.setPartition("%");
     criteria.setPartitionState("%");
     criteria.setRecipientInstanceType(instanceType);
+    /**
     if (instanceType == InstanceType.PARTICIPANT) {
       criteria.setDataSource(Criteria.DataSource.LIVEINSTANCES);
     }
+     **/
     criteria.setSessionSpecific(true);
 
     Message tokenFileUpdatedMessage = new Message(Message.MessageType.USER_DEFINE_MSG,

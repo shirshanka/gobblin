@@ -43,6 +43,7 @@ import org.apache.helix.task.TaskConfig;
 import org.apache.helix.task.TaskDriver;
 import org.apache.helix.task.TaskUtil;
 import org.apache.helix.task.WorkflowContext;
+import org.apache.helix.task.beans.TaskBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -169,6 +170,7 @@ public class GobblinHelixJobLauncher extends AbstractJobLauncher {
                }
                **/
 
+              /**
               // HACK to ensure that concurrent tasks per instance is set.
               // TODO: Remove this when we upgrade to a fixed Helix version
               final String taskResourceName = TaskUtil.getNamespacedJobName(jobContext.getJobName(), jobContext.getJobId());
@@ -177,6 +179,7 @@ public class GobblinHelixJobLauncher extends AbstractJobLauncher {
               HelixConfigScope resourceScope =
                   new HelixConfigScopeBuilder(HelixConfigScope.ConfigScopeProperty.RESOURCE).forCluster(clusterName).forResource(taskResourceName).build();
               helixManager.getConfigAccessor().set(resourceScope, JobConfig.NUM_CONCURRENT_TASKS_PER_INSTANCE, ""+jobConcurrency);
+               **/
             }
           }
         }
@@ -292,7 +295,7 @@ public class GobblinHelixJobLauncher extends AbstractJobLauncher {
     rawConfigMap.put(ConfigurationKeys.TASK_ID_KEY, workUnit.getId());
     rawConfigMap.put(GobblinClusterConfigurationKeys.TASK_SUCCESS_OPTIONAL_KEY, "true");
 
-    taskConfigMap.put(workUnit.getId(), TaskConfig.from(rawConfigMap));
+    taskConfigMap.put(workUnit.getId(), TaskConfig.Builder.from(rawConfigMap));
   }
 
   /**
@@ -327,7 +330,7 @@ public class GobblinHelixJobLauncher extends AbstractJobLauncher {
 
   private void waitForJobCompletion() throws InterruptedException {
     while (true) {
-      WorkflowContext workflowContext = TaskUtil.getWorkflowContext(this.helixManager, this.helixQueueName);
+      WorkflowContext workflowContext = TaskDriver.getWorkflowContext(this.helixManager, this.helixQueueName);
       if (workflowContext != null) {
         org.apache.helix.task.TaskState helixJobState = workflowContext.getJobState(this.jobResourceName);
         if (helixJobState == org.apache.helix.task.TaskState.COMPLETED ||

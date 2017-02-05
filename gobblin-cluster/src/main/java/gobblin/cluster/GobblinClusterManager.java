@@ -263,7 +263,7 @@ public class GobblinClusterManager implements ApplicationLauncher {
       this.helixManager.connect();
       this.helixManager.addLiveInstanceChangeListener(new GobblinLiveInstanceChangeListener());
       this.helixManager.getMessagingService().registerMessageHandlerFactory(
-          Message.MessageType.SHUTDOWN.toString(), new ControllerShutdownMessageHandlerFactory());
+          GobblinHelixConstants.SHUTDOWN_MESSAGE_TYPE, new ControllerShutdownMessageHandlerFactory());
       this.helixManager.getMessagingService().registerMessageHandlerFactory(
           Message.MessageType.USER_DEFINE_MSG.toString(), getUserDefinedMessageHandlerFactory());
     } catch (Exception e) {
@@ -302,10 +302,9 @@ public class GobblinClusterManager implements ApplicationLauncher {
     criteria.setPartition("%");
     criteria.setPartitionState("%");
     criteria.setRecipientInstanceType(InstanceType.PARTICIPANT);
-    criteria.setDataSource(Criteria.DataSource.LIVEINSTANCES);
     criteria.setSessionSpecific(true);
 
-    Message shutdownRequest = new Message(Message.MessageType.SHUTDOWN,
+    Message shutdownRequest = new Message(GobblinHelixConstants.SHUTDOWN_MESSAGE_TYPE,
         HelixMessageSubTypes.WORK_UNIT_RUNNER_SHUTDOWN.toString().toLowerCase() + UUID.randomUUID().toString());
     shutdownRequest.setMsgSubType(HelixMessageSubTypes.WORK_UNIT_RUNNER_SHUTDOWN.toString());
     shutdownRequest.setMsgState(Message.MessageState.NEW);
@@ -340,7 +339,7 @@ public class GobblinClusterManager implements ApplicationLauncher {
 
   /**
    * A custom {@link MessageHandlerFactory} for {@link MessageHandler}s that handle messages of type
-   * {@link org.apache.helix.model.Message.MessageType#SHUTDOWN} for shutting down the controller.
+   * "SHUTDOWN" for shutting down the controller.
    */
   private class ControllerShutdownMessageHandlerFactory implements MessageHandlerFactory {
 
@@ -351,7 +350,7 @@ public class GobblinClusterManager implements ApplicationLauncher {
 
     @Override
     public String getMessageType() {
-      return Message.MessageType.SHUTDOWN.toString();
+      return GobblinHelixConstants.SHUTDOWN_MESSAGE_TYPE;
     }
 
     @Override
@@ -374,7 +373,7 @@ public class GobblinClusterManager implements ApplicationLauncher {
         String messageSubType = this._message.getMsgSubType();
         Preconditions.checkArgument(
             messageSubType.equalsIgnoreCase(HelixMessageSubTypes.APPLICATION_MASTER_SHUTDOWN.toString()),
-            String.format("Unknown %s message subtype: %s", Message.MessageType.SHUTDOWN.toString(), messageSubType));
+            String.format("Unknown %s message subtype: %s", GobblinHelixConstants.SHUTDOWN_MESSAGE_TYPE, messageSubType));
 
         HelixTaskResult result = new HelixTaskResult();
 
